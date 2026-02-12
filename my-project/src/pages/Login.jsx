@@ -99,9 +99,9 @@ const Login = () => {
         setMessage("Login successful!");
         setMessageType("success");
 
-        // Redirect to dashboard/home
+        // Redirect to dashboard
         setTimeout(() => {
-          navigate("/");
+          navigate("/dashboard");
         }, 1000);
       } else {
         setMessage(data.detail || "Invalid credentials.");

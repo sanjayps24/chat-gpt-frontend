@@ -5,6 +5,8 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import AskAi from './pages/AskAi'
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
         {/* Auth pages — rendered full-screen without navbar */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/ask-ai" element={<AskAi />} />
 
         {/* Main app pages — with navbar */}
         <Route
