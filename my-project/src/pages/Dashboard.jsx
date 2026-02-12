@@ -2,31 +2,40 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
-// ChatGPT Logo
-const Logo = () => (
-  <svg viewBox="0 0 24 24" fill="none">
-    <path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.67.416a6.02 6.02 0 00-5.755 4.218 5.987 5.987 0 00-3.996 2.9 6.042 6.042 0 00.744 7.087 5.98 5.98 0 00.516 4.911 6.04 6.04 0 006.51 2.9A6.07 6.07 0 0013.33 23.584a6.02 6.02 0 005.755-4.218 5.985 5.985 0 003.996-2.9 6.042 6.042 0 00-.799-6.645z" fill="#10a37f"/>
-    <path d="M13.33 22.396a4.472 4.472 0 01-2.876-1.05l.143-.082 4.775-2.758a.773.773 0 00.391-.677v-6.737l2.019 1.166a.071.071 0 01.039.054v5.576a4.504 4.504 0 01-4.491 4.508z" fill="#fff"/>
-    <path d="M3.463 18.267a4.494 4.494 0 01-.537-3.018l.143.085 4.775 2.758a.782.782 0 00.782 0l5.832-3.367v2.332a.074.074 0 01-.03.06L9.58 19.906a4.506 4.506 0 01-6.117-1.639z" fill="#fff"/>
-    <path d="M2.34 7.896a4.485 4.485 0 012.366-1.973v5.682a.773.773 0 00.391.676l5.832 3.367-2.019 1.166a.074.074 0 01-.07.006L3.992 13.93A4.504 4.504 0 012.34 7.872v.024z" fill="#fff"/>
-    <path d="M18.837 12.006l-5.832-3.367 2.019-1.166a.074.074 0 01.07-.006l4.848 2.798a4.494 4.494 0 01-.676 8.105v-5.682a.773.773 0 00-.391-.676l-.038-.006z" fill="#fff"/>
-    <path d="M20.537 8.75l-.143-.085-4.775-2.758a.782.782 0 00-.782 0L8.997 9.274V6.942a.074.074 0 01.03-.06l4.848-2.798a4.494 4.494 0 016.662 4.666z" fill="#fff"/>
-    <path d="M8.005 13.274l-2.019-1.166a.071.071 0 01-.039-.054V6.478a4.494 4.494 0 017.367-3.456l-.143.082-4.775 2.758a.773.773 0 00-.391.677v6.735z" fill="#fff"/>
+// Robot Logo Component for a more professional AI feel
+const RobotIcon = ({ size = 24, glow = true }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    style={{ filter: glow ? 'drop-shadow(0 0 8px rgba(16, 163, 127, 0.5))' : 'none' }}
+  >
+    <rect x="3" y="11" width="18" height="10" rx="2" />
+    <circle cx="12" cy="5" r="2" />
+    <path d="M12 7v4" />
+    <line x1="8" y1="16" x2="8" y2="16" />
+    <line x1="16" y1="16" x2="16" y2="16" />
   </svg>
 );
 
 const suggestions = [
-  { title: "Write a story", desc: "Create a creative short story on any topic" },
-  { title: "Analyze data", desc: "Help me understand trends and patterns" },
-  { title: "Plan a trip", desc: "Build an itinerary for my next vacation" },
-  { title: "Debug code", desc: "Find and fix issues in my project" },
-  { title: "Draft an email", desc: "Compose a professional email quickly" },
-  { title: "Brainstorm ideas", desc: "Generate creative concepts for my project" },
+  { title: "Generate a futuristic cityscape", desc: "Image generation prompt" },
+  { title: "Analyze global market trends", desc: "Real-world data analysis" },
+  { title: "Write a short sci-fi story", desc: "Creative writing" },
+  { title: "Plan a trip to Tokyo", desc: "Travel itinerary" },
+  { title: "Debug a React useEffect loop", desc: "Coding help" },
+  { title: "Draft a promotion request email", desc: "Professional writing" },
 ];
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [history, setHistory] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +45,10 @@ const Dashboard = () => {
       return;
     }
     setUserEmail(localStorage.getItem("userEmail") || "User");
+    
+    // Load history from localStorage
+    const savedHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+    setHistory(savedHistory);
   }, [navigate]);
 
   const handleLogout = () => {
@@ -45,13 +58,22 @@ const Dashboard = () => {
   };
 
   const handleSuggestionClick = (title) => {
+    saveToHistory(title);
     navigate("/ask-ai", { state: { initialMessage: title } });
+  };
+
+  const saveToHistory = (text) => {
+    if (!text.trim()) return;
+    const newHistory = [text, ...history.filter(h => h !== text)].slice(0, 10);
+    setHistory(newHistory);
+    localStorage.setItem("chatHistory", JSON.stringify(newHistory));
   };
 
   const handleQuickAsk = (e) => {
     e.preventDefault();
     const input = e.target.elements.quickInput.value.trim();
     if (input) {
+      saveToHistory(input);
       navigate("/ask-ai", { state: { initialMessage: input } });
     }
   };
@@ -69,6 +91,9 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-layout">
+      {/* Background Mesh Animation */}
+      <div className="dashboard-bg-mesh" />
+
       {/* Mobile overlay */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
@@ -79,8 +104,8 @@ const Dashboard = () => {
       <aside className={`dashboard-sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-header">
           <Link to="/dashboard" className="sidebar-brand">
-            <Logo />
-            <span>ChatGPT</span>
+            <RobotIcon size={28} />
+            <span>Sanjay's GPT</span>
           </Link>
         </div>
 
@@ -110,14 +135,30 @@ const Dashboard = () => {
             </svg>
             Ask AI
           </Link>
-          <Link to="/" className="sidebar-nav-item" onClick={() => setSidebarOpen(false)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="2" y1="12" x2="22" y2="12" />
-              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-            </svg>
-            Home
-          </Link>
+
+          {/* Chat History Section */}
+          <div className="sidebar-nav-label">Recent History</div>
+          <div className="sidebar-history">
+            {history.length > 0 ? (
+              history.map((item, index) => (
+                <div 
+                  key={index} 
+                  className="history-item" 
+                  onClick={() => handleSuggestionClick(item)}
+                  title={item}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                  </svg>
+                  {item}
+                </div>
+              ))
+            ) : (
+              <div className="sidebar-nav-item" style={{ opacity: 0.4, cursor: 'default' }}>
+                No recent chats
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className="sidebar-footer">
@@ -125,7 +166,7 @@ const Dashboard = () => {
             <div className="sidebar-user-avatar">{getInitials(userEmail)}</div>
             <div className="sidebar-user-info">
               <div className="sidebar-user-name">{userEmail}</div>
-              <div className="sidebar-user-plan">Free plan</div>
+              <div className="sidebar-user-plan">Pro plan</div>
             </div>
             <button className="sidebar-logout-btn" onClick={handleLogout} title="Logout">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -150,14 +191,10 @@ const Dashboard = () => {
         </button>
 
         <div className="dashboard-welcome">
-          <svg className="dash-logo" viewBox="0 0 24 24" fill="none">
-            <path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.67.416a6.02 6.02 0 00-5.755 4.218 5.987 5.987 0 00-3.996 2.9 6.042 6.042 0 00.744 7.087 5.98 5.98 0 00.516 4.911 6.04 6.04 0 006.51 2.9A6.07 6.07 0 0013.33 23.584a6.02 6.02 0 005.755-4.218 5.985 5.985 0 003.996-2.9 6.042 6.042 0 00-.799-6.645z" fill="#10a37f"/>
-            <path d="M13.33 22.396a4.472 4.472 0 01-2.876-1.05l.143-.082 4.775-2.758a.773.773 0 00.391-.677v-6.737l2.019 1.166a.071.071 0 01.039.054v5.576a4.504 4.504 0 01-4.491 4.508z" fill="#fff"/>
-            <path d="M3.463 18.267a4.494 4.494 0 01-.537-3.018l.143.085 4.775 2.758a.782.782 0 00.782 0l5.832-3.367v2.332a.074.074 0 01-.03.06L9.58 19.906a4.506 4.506 0 01-6.117-1.639z" fill="#fff"/>
-          </svg>
+          <RobotIcon size={64} />
 
           <h1 className="dash-greeting">{getGreeting()}</h1>
-          <p className="dash-subtitle">How can I help you today?</p>
+          <p className="dash-subtitle">Welcome to Sanjay's GPT. How can I assist you today?</p>
 
           <div className="dash-suggestions">
             {suggestions.map((s, i) => (
@@ -179,7 +216,7 @@ const Dashboard = () => {
             <input
               className="dash-input"
               name="quickInput"
-              placeholder="Message ChatGPT..."
+              placeholder="Ask anything or generate an image..."
               autoComplete="off"
             />
             <button className="dash-send-btn" type="submit">

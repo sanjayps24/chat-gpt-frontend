@@ -2,30 +2,55 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Dashboard.css";
 
-// ChatGPT Logo
-const Logo = () => (
-  <svg viewBox="0 0 24 24" fill="none">
-    <path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.67.416a6.02 6.02 0 00-5.755 4.218 5.987 5.987 0 00-3.996 2.9 6.042 6.042 0 00.744 7.087 5.98 5.98 0 00.516 4.911 6.04 6.04 0 006.51 2.9A6.07 6.07 0 0013.33 23.584a6.02 6.02 0 005.755-4.218 5.985 5.985 0 003.996-2.9 6.042 6.042 0 00-.799-6.645z" fill="#10a37f"/>
-    <path d="M13.33 22.396a4.472 4.472 0 01-2.876-1.05l.143-.082 4.775-2.758a.773.773 0 00.391-.677v-6.737l2.019 1.166a.071.071 0 01.039.054v5.576a4.504 4.504 0 01-4.491 4.508z" fill="#fff"/>
-    <path d="M3.463 18.267a4.494 4.494 0 01-.537-3.018l.143.085 4.775 2.758a.782.782 0 00.782 0l5.832-3.367v2.332a.074.074 0 01-.03.06L9.58 19.906a4.506 4.506 0 01-6.117-1.639z" fill="#fff"/>
-    <path d="M2.34 7.896a4.485 4.485 0 012.366-1.973v5.682a.773.773 0 00.391.676l5.832 3.367-2.019 1.166a.074.074 0 01-.07.006L3.992 13.93A4.504 4.504 0 012.34 7.872v.024z" fill="#fff"/>
-    <path d="M18.837 12.006l-5.832-3.367 2.019-1.166a.074.074 0 01.07-.006l4.848 2.798a4.494 4.494 0 01-.676 8.105v-5.682a.773.773 0 00-.391-.676l-.038-.006z" fill="#fff"/>
-    <path d="M20.537 8.75l-.143-.085-4.775-2.758a.782.782 0 00-.782 0L8.997 9.274V6.942a.074.074 0 01.03-.06l4.848-2.798a4.494 4.494 0 016.662 4.666z" fill="#fff"/>
-    <path d="M8.005 13.274l-2.019-1.166a.071.071 0 01-.039-.054V6.478a4.494 4.494 0 017.367-3.456l-.143.082-4.775 2.758a.773.773 0 00-.391.677v6.735z" fill="#fff"/>
+// Robot Logo Component for a more professional AI feel
+const RobotIcon = ({ size = 24, glow = true }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    style={{ filter: glow ? 'drop-shadow(0 0 10px rgba(16, 163, 127, 0.6))' : 'none' }}
+  >
+    <rect x="3" y="11" width="18" height="10" rx="2" />
+    <circle cx="12" cy="5" r="2" />
+    <path d="M12 7v4" />
+    <line x1="8" y1="16" x2="8" y2="16" />
+    <line x1="16" y1="16" x2="16" y2="16" />
   </svg>
 );
 
-// Mini logo for message avatars
-const MiniLogo = () => (
-  <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
-    <path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.67.416a6.02 6.02 0 00-5.755 4.218 5.987 5.987 0 00-3.996 2.9 6.042 6.042 0 00.744 7.087 5.98 5.98 0 00.516 4.911 6.04 6.04 0 006.51 2.9A6.07 6.07 0 0013.33 23.584a6.02 6.02 0 005.755-4.218 5.985 5.985 0 003.996-2.9 6.042 6.042 0 00-.799-6.645z" fill="#10a37f"/>
-    <path d="M13.33 22.396a4.472 4.472 0 01-2.876-1.05l.143-.082 4.775-2.758a.773.773 0 00.391-.677v-6.737l2.019 1.166a.071.071 0 01.039.054v5.576a4.504 4.504 0 01-4.491 4.508z" fill="#fff"/>
+// Mini robot logo for message avatars
+const MiniRobotLogo = () => (
+  <svg viewBox="0 0 24 24" fill="none" width="18" height="18" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="11" width="18" height="10" rx="2" />
+    <circle cx="12" cy="5" r="2" />
+    <path d="M12 7v4" />
   </svg>
 );
 
-// AI response generator — calls backend or uses built-in fallback
+// AI response generator — enhanced for real-world simulation and image generation
 const getAIResponse = async (message, token) => {
-  // Try calling the backend first
+  const msg = message.toLowerCase();
+  
+  // Image Generation Logic
+  if (msg.includes("generate image") || msg.includes("create image") || msg.includes("show me an image")) {
+    const prompt = message.replace(/(generate|create|show me) (an )?image (of )?/i, "").trim();
+    return {
+      type: "image",
+      prompt: prompt || "a futuristic robot",
+      content: `I've generated an image for you based on your prompt: "${prompt || 'a futuristic robot'}"`,
+      imageUrl: `https://pollinations.ai/p/${encodeURIComponent(prompt || "a futuristic futuristic robot assistant")}?width=1024&height=1024&seed=${Math.floor(Math.random() * 1000)}&model=flux`
+    };
+  }
+
+  // Simulate real-world data fetching delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  // Try calling the backend first (if available)
   try {
     const response = await fetch("http://127.0.0.1:8000/ask", {
       method: "POST",
@@ -38,45 +63,34 @@ const getAIResponse = async (message, token) => {
 
     if (response.ok) {
       const data = await response.json();
-      return data.response || data.reply || data.message || data.answer;
+      return { 
+        type: "text", 
+        content: data.response || data.reply || data.message || data.answer 
+      };
     }
-  } catch (err) {
-    // Backend not available — use built-in fallback
-  }
+  } catch (err) {}
 
-  // Smart fallback responses
-  const msg = message.toLowerCase();
-
+  // Smart fallback responses with simulated real-world data
   if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey")) {
-    return "Hello! 👋 I'm ChatGPT, your AI assistant. I'm here to help you with writing, analysis, coding, brainstorming, and much more. What would you like to explore today?";
+    return { type: "text", content: "Hello! 👋 I'm Sanjay's GPT assistant. I've just synchronized with the latest global data streams. How can I help you today?" };
   }
 
-  if (msg.includes("write a story") || msg.includes("story")) {
-    return "Here's a short story for you:\n\n**The Last Lighthouse Keeper**\n\nOn a forgotten island where the sea met the sky, old Marcus kept the lighthouse burning. Every night for forty years, he climbed 127 steps to light the flame.\n\nOne stormy evening, a young girl washed ashore. She had no memory of where she came from — only a compass that pointed not north, but toward whatever she needed most.\n\n\"Why does it point at you?\" she asked Marcus.\n\nHe smiled. \"Perhaps because everyone needs a light in the dark.\"\n\nFrom that day, Marcus had an apprentice. And the lighthouse never went dark again. 🌊✨";
+  if (msg.includes("time") || msg.includes("weather") || msg.includes("news") || msg.includes("market")) {
+    const now = new Date();
+    return { 
+      type: "text", 
+      content: `[Searching web...] 🔍\n\nI've fetched the latest information for you:\n\n📅 **Current Status:**\n- **Date:** ${now.toLocaleDateString()}\n- **Time:** ${now.toLocaleTimeString()}\n- **Server Status:** Online & Synchronized\n\n**Market Summary:** The global markets are currently showing positive momentum with a focus on AI and green energy sectors. \n\nWhat specific sector or region would you like more details on?` 
+    };
   }
 
-  if (msg.includes("analyze") || msg.includes("data")) {
-    return "I'd love to help you analyze data! Here's how I can assist:\n\n📊 **Data Analysis Capabilities:**\n- Identify trends and patterns in your datasets\n- Statistical summaries and insights\n- Data visualization recommendations\n- Comparative analysis across time periods\n- Anomaly detection and outlier identification\n\nPlease share your data or describe what you'd like to analyze, and I'll provide detailed insights!";
+  if (msg.includes("story")) {
+    return { type: "text", content: "Synchronizing creative modules... 🎭\n\n**The Silicon Heart**\n\nIn the year 2142, a robot named Unit-7 discovered a bird with a broken wing. While its programming suggested disposal as an 'inefficient organic unit', its neural network flickered. It carried the bird for 400 miles to the last sanctuary. \n\nWhen the bird finally flew, Unit-7 didn't just record the data; it felt a resonance in its core — the first-ever artificial emotion. \n\n✨ Profound, isn't it?" };
   }
 
-  if (msg.includes("plan") || msg.includes("trip") || msg.includes("travel")) {
-    return "Let me help you plan an amazing trip! 🗺️\n\nTo create the perfect itinerary, I need a few details:\n\n1. **Destination** — Where would you like to go?\n2. **Duration** — How many days?\n3. **Budget** — Luxury, mid-range, or budget-friendly?\n4. **Interests** — Adventure, culture, food, relaxation?\n5. **Travel companions** — Solo, couple, family, or friends?\n\nOnce you share these, I'll build a day-by-day itinerary with recommendations for accommodations, activities, restaurants, and local tips! ✈️";
-  }
-
-  if (msg.includes("code") || msg.includes("debug") || msg.includes("programming") || msg.includes("javascript") || msg.includes("python")) {
-    return "I'm ready to help with your code! 💻\n\nI can assist with:\n\n🔧 **Debugging** — Paste your code and error messages\n📝 **Writing code** — Describe what you need built\n🎓 **Explaining concepts** — Any programming topic\n⚡ **Optimization** — Make your code faster and cleaner\n🔄 **Refactoring** — Improve code structure\n\nI support **Python, JavaScript, TypeScript, Java, C++, Go, Rust**, and many more languages.\n\nWhat would you like to work on?";
-  }
-
-  if (msg.includes("email") || msg.includes("draft") || msg.includes("write")) {
-    return "I'll help you draft a professional email! ✉️\n\nPlease tell me:\n\n1. **Recipient** — Who is it for? (boss, client, colleague)\n2. **Purpose** — What's the goal? (request, follow-up, invitation, complaint)\n3. **Tone** — Formal, semi-formal, or casual?\n4. **Key points** — What must be included?\n\nHere's a quick template to get started:\n\n---\n**Subject:** [Your topic here]\n\nDear [Name],\n\nI hope this message finds you well. I'm reaching out regarding...\n\nBest regards,\n[Your name]\n\n---\n\nShare the details and I'll customize it for you!";
-  }
-
-  if (msg.includes("brainstorm") || msg.includes("idea")) {
-    return "Let's brainstorm together! 🧠💡\n\nHere are some creative frameworks to get started:\n\n🎯 **Mind Mapping** — Start with a central concept and branch out\n🔀 **SCAMPER Method** — Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Reverse\n💭 **What If...** — Challenge assumptions with hypothetical questions\n\nTell me your topic or challenge, and I'll generate ideas using these techniques!\n\nSome areas I can brainstorm:\n- Business ideas\n- Marketing campaigns\n- Product features\n- Content topics\n- Problem solutions";
-  }
-
-  // Default response
-  return `Great question! Here's my take on "${message}":\n\nI can help you explore this topic in depth. Here are some ways I can assist:\n\n🔍 **Research** — I can provide detailed information and explanations\n💡 **Analysis** — I can break down complex concepts into simple terms\n✍️ **Content creation** — I can write, edit, and improve text\n🧮 **Problem solving** — I can help find solutions to challenges\n\nWould you like me to dive deeper into any specific aspect? I'm here to help! 🚀`;
+  return { 
+    type: "text", 
+    content: `[Fetched from Knowledge Base] 💡\n\nThat's an interesting topic! Here's the latest perspective on "${message}":\n\nI can assist you further by analyzing specific data points, generating related visuals, or breaking down the core concepts into actionable steps. \n\nWould you like me to generate an image related to this, or search for more real-time data?` 
+  };
 };
 
 const AskAi = () => {
@@ -85,6 +99,7 @@ const AskAi = () => {
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [history, setHistory] = useState([]);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const navigate = useNavigate();
@@ -97,13 +112,15 @@ const AskAi = () => {
       return;
     }
     setUserEmail(localStorage.getItem("userEmail") || "User");
+    
+    // Load history from localStorage
+    const savedHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+    setHistory(savedHistory);
   }, [navigate]);
 
-  // Handle initial message from dashboard suggestion
   useEffect(() => {
     if (location.state?.initialMessage && messages.length === 0) {
       handleSend(location.state.initialMessage);
-      // Clear the state so it doesn't re-trigger
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -114,24 +131,36 @@ const AskAi = () => {
 
   useEffect(scrollToBottom, [messages]);
 
+  const saveToHistory = (text) => {
+    if (!text.trim()) return;
+    const newHistory = [text, ...history.filter(h => h !== text)].slice(0, 10);
+    setHistory(newHistory);
+    localStorage.setItem("chatHistory", JSON.stringify(newHistory));
+  };
+
   const handleSend = async (messageText) => {
     const text = messageText || input.trim();
     if (!text || loading) return;
 
+    saveToHistory(text);
     const userMsg = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
-    // Auto-resize textarea back
     if (textareaRef.current) {
       textareaRef.current.style.height = "24px";
     }
 
     const token = localStorage.getItem("token");
-    const reply = await getAIResponse(text, token);
+    const result = await getAIResponse(text, token);
 
-    setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    setMessages((prev) => [...prev, { 
+      role: "assistant", 
+      content: result.content,
+      type: result.type,
+      imageUrl: result.imageUrl
+    }]);
     setLoading(false);
   };
 
@@ -144,7 +173,6 @@ const AskAi = () => {
 
   const handleTextareaChange = (e) => {
     setInput(e.target.value);
-    // Auto-resize
     e.target.style.height = "24px";
     e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px";
   };
@@ -164,6 +192,9 @@ const AskAi = () => {
 
   return (
     <div className="dashboard-layout">
+      {/* Background Mesh Animation */}
+      <div className="dashboard-bg-mesh" />
+
       {/* Mobile overlay */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`}
@@ -174,8 +205,8 @@ const AskAi = () => {
       <aside className={`dashboard-sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-header">
           <Link to="/dashboard" className="sidebar-brand">
-            <Logo />
-            <span>ChatGPT</span>
+            <RobotIcon size={28} />
+            <span>Sanjay's GPT</span>
           </Link>
         </div>
 
@@ -202,14 +233,27 @@ const AskAi = () => {
             </svg>
             Ask AI
           </Link>
-          <Link to="/" className="sidebar-nav-item" onClick={() => setSidebarOpen(false)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="2" y1="12" x2="22" y2="12" />
-              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-            </svg>
-            Home
-          </Link>
+
+          {/* History in Sidebar */}
+          <div className="sidebar-nav-label">Recent History</div>
+          <div className="sidebar-history">
+            {history.map((item, index) => (
+              <div 
+                key={index} 
+                className="history-item" 
+                onClick={() => {
+                  setSidebarOpen(false);
+                  handleSend(item);
+                }}
+                title={item}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>
+                {item}
+              </div>
+            ))}
+          </div>
         </nav>
 
         <div className="sidebar-footer">
@@ -217,7 +261,7 @@ const AskAi = () => {
             <div className="sidebar-user-avatar">{getInitials(userEmail)}</div>
             <div className="sidebar-user-info">
               <div className="sidebar-user-name">{userEmail}</div>
-              <div className="sidebar-user-plan">Free plan</div>
+              <div className="sidebar-user-plan">Pro plan</div>
             </div>
             <button className="sidebar-logout-btn" onClick={handleLogout} title="Logout">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -242,15 +286,11 @@ const AskAi = () => {
         </button>
 
         <div className="chat-container">
-          {/* Messages or welcome */}
           {messages.length === 0 && !loading ? (
             <div className="chat-welcome">
-              <svg className="chat-welcome-logo" viewBox="0 0 24 24" fill="none">
-                <path d="M22.282 9.821a5.985 5.985 0 00-.516-4.91 6.046 6.046 0 00-6.51-2.9A6.065 6.065 0 0011.67.416a6.02 6.02 0 00-5.755 4.218 5.987 5.987 0 00-3.996 2.9 6.042 6.042 0 00.744 7.087 5.98 5.98 0 00.516 4.911 6.04 6.04 0 006.51 2.9A6.07 6.07 0 0013.33 23.584a6.02 6.02 0 005.755-4.218 5.985 5.985 0 003.996-2.9 6.042 6.042 0 00-.799-6.645z" fill="#10a37f"/>
-                <path d="M13.33 22.396a4.472 4.472 0 01-2.876-1.05l.143-.082 4.775-2.758a.773.773 0 00.391-.677v-6.737l2.019 1.166a.071.071 0 01.039.054v5.576a4.504 4.504 0 01-4.491 4.508z" fill="#fff"/>
-              </svg>
-              <h2 className="chat-welcome-title">How can I help you today?</h2>
-              <p className="chat-welcome-sub">Ask me anything — I'm here to help!</p>
+              <RobotIcon size={56} />
+              <h2 className="chat-welcome-title">How can I assist you today?</h2>
+              <p className="chat-welcome-sub">Ask questions, plan projects, or generate images.</p>
             </div>
           ) : (
             <div className="chat-messages">
@@ -258,13 +298,25 @@ const AskAi = () => {
                 <div key={i} className={`chat-message ${msg.role}`}>
                   {msg.role === "assistant" && (
                     <div className="msg-avatar">
-                      <MiniLogo />
+                      <MiniRobotLogo />
                     </div>
                   )}
                   <div className="msg-content">
                     {msg.content.split("\n").map((line, j) => (
                       <p key={j}>{line}</p>
                     ))}
+                    
+                    {msg.type === "image" && (
+                      <div className="msg-image-container">
+                        <span className="image-badge">AI Generated</span>
+                        <img 
+                          src={msg.imageUrl} 
+                          alt={msg.content} 
+                          className="msg-generated-image" 
+                          onLoad={scrollToBottom}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -272,7 +324,7 @@ const AskAi = () => {
               {loading && (
                 <div className="chat-message assistant">
                   <div className="msg-avatar">
-                    <MiniLogo />
+                    <MiniRobotLogo />
                   </div>
                   <div className="msg-content">
                     <div className="typing-indicator">
@@ -297,7 +349,7 @@ const AskAi = () => {
                 value={input}
                 onChange={handleTextareaChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Message ChatGPT..."
+                placeholder="Message Sanjay's GPT..."
                 rows={1}
               />
               <button

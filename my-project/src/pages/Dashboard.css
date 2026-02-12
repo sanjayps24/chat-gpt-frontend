@@ -15,6 +15,25 @@
   position: fixed;
   top: 0;
   left: 0;
+  overflow: hidden;
+}
+
+/* Eye-refresh mesh background */
+.dashboard-bg-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(16, 163, 127, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  animation: bg-shift 15s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes bg-shift {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.1) translate(-2%, -2%); }
 }
 
 /* ---- Sidebar ---- */
@@ -27,6 +46,7 @@
   transition: transform 0.3s ease;
   flex-shrink: 0;
   z-index: 10;
+  backdrop-filter: blur(10px);
 }
 
 .sidebar-header {
@@ -131,6 +151,42 @@
 
 .sidebar-nav-item.active svg {
   opacity: 1;
+}
+
+/* History Styles */
+.sidebar-history {
+  margin-top: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin: 0 8px 2px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+.history-item svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.5;
 }
 
 /* Sidebar footer */
@@ -365,8 +421,14 @@
 }
 
 .dash-send-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  color: #fff;
+  filter: drop-shadow(0 0 2px rgba(0,0,0,0.2));
+}
+
+.dash-send-btn:not(:disabled) svg {
+  opacity: 1;
 }
 
 /* ---- Chat Interface (AskAi) ---- */
@@ -459,6 +521,41 @@
 
 .chat-message.assistant .msg-content p:last-child {
   margin-bottom: 0;
+}
+
+/* Image generation result */
+.msg-image-container {
+  margin-top: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #000;
+  max-width: 512px;
+  position: relative;
+}
+
+.msg-generated-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.msg-generated-image:hover {
+  transform: scale(1.02);
+}
+
+.image-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(16, 163, 127, 0.8);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 /* Typing indicator */
