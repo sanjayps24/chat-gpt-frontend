@@ -113,10 +113,22 @@ const AskAi = () => {
     }
     setUserEmail(localStorage.getItem("userEmail") || "User");
     
-    // Load history from localStorage
-    const savedHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
-    setHistory(savedHistory);
+    fetchHistory(token);
   }, [navigate]);
+
+  const fetchHistory = async (token) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/search/history", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setHistory(data.map(item => item.query));
+      }
+    } catch (err) {
+      console.error("Failed to fetch history:", err);
+    }
+  };
 
   useEffect(() => {
     if (location.state?.initialMessage && messages.length === 0) {
@@ -131,11 +143,23 @@ const AskAi = () => {
 
   useEffect(scrollToBottom, [messages]);
 
-  const saveToHistory = (text) => {
+  const saveToHistory = async (text) => {
     if (!text.trim()) return;
-    const newHistory = [text, ...history.filter(h => h !== text)].slice(0, 10);
-    setHistory(newHistory);
-    localStorage.setItem("chatHistory", JSON.stringify(newHistory));
+    const token = localStorage.getItem("token");
+    try {
+      await fetch("http://127.0.0.1:8000/search/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ query: text })
+      });
+      fetchHistory(token);
+    } catch (err) {
+      const newHistory = [text, ...history.filter(h => h !== text)].slice(0, 10);
+      setHistory(newHistory);
+    }
   };
 
   const handleSend = async (messageText) => {
@@ -173,8 +197,10 @@ const AskAi = () => {
 
   const handleTextareaChange = (e) => {
     setInput(e.target.value);
-    e.target.style.height = "24px";
-    e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px";
+    const target = e.target;
+    // Update height smoothly without resetting to 24px first
+    target.style.height = "auto";
+    target.style.height = Math.min(target.scrollHeight, 200) + "px";
   };
 
   const handleLogout = () => {
@@ -220,10 +246,19 @@ const AskAi = () => {
 
         <nav className="sidebar-nav">
           <div className="sidebar-nav-label">Navigation</div>
-          <Link to="/dashboard" className="sidebar-nav-item" onClick={() => setSidebarOpen(false)}>
+          <Link to="/" className="sidebar-nav-item" onClick={() => setSidebarOpen(false)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
               <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Home
+          </Link>
+          <Link to="/dashboard" className="sidebar-nav-item" onClick={() => setSidebarOpen(false)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
             </svg>
             Dashboard
           </Link>
@@ -288,9 +323,9 @@ const AskAi = () => {
         <div className="chat-container">
           {messages.length === 0 && !loading ? (
             <div className="chat-welcome">
-              <RobotIcon size={56} />
-              <h2 className="chat-welcome-title">How can I assist you today?</h2>
-              <p className="chat-welcome-sub">Ask questions, plan projects, or generate images.</p>
+              <RobotIcon size={64} />
+              <h2 className="chat-welcome-title">I'm your creative partner.</h2>
+              <p className="chat-welcome-sub">Ask me anything, or try: <b>"Generate an image of a cybernetic forest"</b></p>
             </div>
           ) : (
             <div className="chat-messages">

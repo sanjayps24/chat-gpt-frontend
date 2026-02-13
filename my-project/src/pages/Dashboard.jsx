@@ -46,10 +46,22 @@ const Dashboard = () => {
     }
     setUserEmail(localStorage.getItem("userEmail") || "User");
     
-    // Load history from localStorage
-    const savedHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
-    setHistory(savedHistory);
+    fetchHistory(token);
   }, [navigate]);
+
+  const fetchHistory = async (token) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/search/history", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setHistory(data.map(item => item.query));
+      }
+    } catch (err) {
+      console.error("Failed to fetch history:", err);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -62,11 +74,24 @@ const Dashboard = () => {
     navigate("/ask-ai", { state: { initialMessage: title } });
   };
 
-  const saveToHistory = (text) => {
+  const saveToHistory = async (text) => {
     if (!text.trim()) return;
-    const newHistory = [text, ...history.filter(h => h !== text)].slice(0, 10);
-    setHistory(newHistory);
-    localStorage.setItem("chatHistory", JSON.stringify(newHistory));
+    const token = localStorage.getItem("token");
+    try {
+      await fetch("http://127.0.0.1:8000/search/", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ query: text })
+      });
+      fetchHistory(token);
+    } catch (err) {
+      // Fallback to local state if backend fails, but still navigate
+      const newHistory = [text, ...history.filter(h => h !== text)].slice(0, 10);
+      setHistory(newHistory);
+    }
   };
 
   const handleQuickAsk = (e) => {
@@ -122,10 +147,19 @@ const Dashboard = () => {
 
         <nav className="sidebar-nav">
           <div className="sidebar-nav-label">Navigation</div>
-          <Link to="/dashboard" className="sidebar-nav-item active" onClick={() => setSidebarOpen(false)}>
+          <Link to="/" className="sidebar-nav-item" onClick={() => setSidebarOpen(false)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
               <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            Home
+          </Link>
+          <Link to="/dashboard" className="sidebar-nav-item active" onClick={() => setSidebarOpen(false)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
             </svg>
             Dashboard
           </Link>
